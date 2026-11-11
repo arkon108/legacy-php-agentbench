@@ -186,8 +186,8 @@ Config D uses glm-5.3 as worker and kimi-k3 as judge. It resolves only 3/36 (dw-
 ### Setup
 
 ```bash
-git clone https://github.com/shisa-ai/jouzu-benchmark.git
-cd jouzu-benchmark
+git clone https://github.com/arkon108/legacy-php-agentbench.git
+cd legacy-php-agentbench
 pip install -r requirements.txt
 
 # Configure API access
