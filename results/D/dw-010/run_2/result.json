@@ -1,0 +1,16 @@
+{
+  "task_id": "dw-010",
+  "config": "D",
+  "run_number": 2,
+  "model_id": "glm-5.3",
+  "resolved": true,
+  "fail_to_pass_passed": true,
+  "pass_to_pass_passed": true,
+  "tokens_in": 197732,
+  "tokens_out": 5381,
+  "cost_usd": 0.30592400000000003,
+  "wall_time_seconds": 371.8,
+  "turns": 16,
+  "diff": "diff --git a/inc/Feed/FeedParserFile.php b/inc/Feed/FeedParserFile.php\nindex 3ee5cc96a..1c0012fd9 100644\n--- a/inc/Feed/FeedParserFile.php\n+++ b/inc/Feed/FeedParserFile.php\n@@ -64,12 +64,24 @@ class FeedParserFile extends File\n      * Converts DokuHTTPClient's \"name => value\" headers into SimplePie's\n      * \"name => [values]\" representation\n      *\n-     * @param array<string, string> $headers\n+     * DokuHTTPClient stores headers that were sent more than once (e.g. multiple\n+     * Set-Cookie headers) as a nested array of values, so those have to be\n+     * handled in addition to plain string values.\n+     *\n+     * @param array<string, string|string[]> $headers\n      * @return array<string, string[]>\n      */\n     protected function normalizeHeaders($headers)\n     {\n-        return array_map(static fn($value) => array_map(trim(...), explode(',', (string)$value)), $headers);\n+        $normalized = [];\n+        foreach ($headers as $name => $value) {\n+            $values = [];\n+            foreach ((array)$value as $line) {\n+                $values = [...$values, ...array_map(trim(...), explode(',', (string)$line))];\n+            }\n+            $normalized[$name] = $values;\n+        }\n+        return $normalized;\n     }\n \n     // the following methods implement SimplePie's Response interface and have to keep its naming\n",
+  "error": "token_limit"
+}

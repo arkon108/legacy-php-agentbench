@@ -1,0 +1,11 @@
+{
+  "id": "dw-011",
+  "repo": "dokuwiki/dokuwiki",
+  "base_commit": "9a38b8db3f24",
+  "fix_commit": "6372bc80cf66",
+  "statement": "A deleted DokuWiki page that is restored outside DokuWiki — for example by copying from a backup with 'cp -p' or 'rsync --times', which preserves the old modification time — permanently stays marked as 'deleted'. The page file exists and has content, but DokuWiki's getCurrentRevisionInfo() treats it as unchanged because the file content matches the attic copy stored at the delete revision. That attic copy holds the pre-delete content, so the unchanged-content shortcut wrongly concludes that nothing has changed and keeps the DELETE as the current revision. The page remains invisible on every subsequent read.",
+  "fail_to_pass": ["dokuwiki\\test\\ChangeLog\\PageChangeLogTest::testExternallyRestoredDeletedPageIsNotStillDeleted"],
+  "pass_to_pass": "cd _test && php vendor/bin/phpunit --no-coverage --exclude-group internet",
+  "gold_patch": "patches/6372bc80cf66.patch",
+  "source_files": ["inc/ChangeLog/ChangeLog.php"]
+}

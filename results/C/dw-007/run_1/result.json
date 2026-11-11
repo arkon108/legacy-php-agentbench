@@ -1,0 +1,16 @@
+{
+  "task_id": "dw-007",
+  "config": "C",
+  "run_number": 1,
+  "model_id": "qwen3.7-plus",
+  "resolved": false,
+  "fail_to_pass_passed": false,
+  "pass_to_pass_passed": false,
+  "tokens_in": 204415,
+  "tokens_out": 5824,
+  "cost_usd": 0.0910844,
+  "wall_time_seconds": 197.3,
+  "turns": 15,
+  "diff": "",
+  "error": "token_limit"
+}

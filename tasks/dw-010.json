@@ -1,0 +1,11 @@
+{
+  "id": "dw-010",
+  "repo": "dokuwiki/dokuwiki",
+  "base_commit": "5cf0f76cc579",
+  "fix_commit": "42685d0d0167",
+  "statement": "When fetching external RSS/Atom feeds, DokuWiki emits 'Array to string conversion' warnings and loses header values. DokuHTTPClient stores HTTP response headers that occur more than once (e.g. multiple Set-Cookie headers) as a nested PHP array. FeedParserFile casts each header value to a string, which turns those arrays into the literal string 'Array'. The repeated header values are lost and PHP emits a warning on every such feed fetch.",
+  "fail_to_pass": ["dokuwiki\\test\\Feed\\FeedParserTest::testRepeatedHeadersAreFlattened"],
+  "pass_to_pass": "cd _test && php vendor/bin/phpunit --no-coverage --exclude-group internet",
+  "gold_patch": "patches/42685d0d0167.patch",
+  "source_files": ["inc/Feed/FeedParserFile.php"]
+}

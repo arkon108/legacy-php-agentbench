@@ -1,0 +1,11 @@
+{
+  "id": "dw-009",
+  "repo": "dokuwiki/dokuwiki",
+  "base_commit": "e5358e0d3f36",
+  "fix_commit": "7ec464d90fb8",
+  "statement": "The Remote API's core.aclCheck method allows a user to check their own page permissions by passing their own username. However, on an auth backend where usernames are case-insensitive, the self-check comparison uses a verbatim string match against REMOTE_USER. A user logged in as 'john' who passes 'John' as the username parameter is treated as requesting another user's permissions and denied, even though both names refer to the same account on a case-insensitive backend.",
+  "fail_to_pass": ["dokuwiki\\test\\Remote\\ApiCoreAclCheckTest::testCheckaclSelfCaseInsensitiveBackend"],
+  "pass_to_pass": "cd _test && php vendor/bin/phpunit --no-coverage --exclude-group internet",
+  "gold_patch": "patches/7ec464d90fb8.patch",
+  "source_files": ["inc/Remote/ApiCore.php"]
+}

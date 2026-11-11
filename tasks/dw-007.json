@@ -1,0 +1,14 @@
+{
+  "id": "dw-007",
+  "repo": "dokuwiki/dokuwiki",
+  "base_commit": "4b0e56882ccf",
+  "fix_commit": "4131697dd075",
+  "statement": "In a DokuWiki table, when a cell uses row-span (:::) to merge across the boundary between the table head and body, the parser incorrectly determines where the head ends. A ::: in the first body row is dropped (because a cell cannot span from head to body), while the same syntax one row further down merges correctly. Which behavior a row gets depends on how many normal cells it happens to carry, not on the actual table structure. Tables with vertically merged cells crossing the head/body boundary produce incorrect HTML output.",
+  "fail_to_pass": [
+    "dokuwiki\\test\\Parsing\\ParserMode\\TableTest::testRowSpanAcrossTableHeadBoundary",
+    "dokuwiki\\test\\Parsing\\ParserMode\\TableTest::testRowSpanShrinksTableHead"
+  ],
+  "pass_to_pass": "cd _test && php vendor/bin/phpunit --no-coverage --exclude-group internet",
+  "gold_patch": "patches/4131697dd075.patch",
+  "source_files": ["inc/Parsing/Handler/Table.php"]
+}

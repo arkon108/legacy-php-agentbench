@@ -1,0 +1,26 @@
+diff --git a/_test/tests/Remote/ApiTest.php b/_test/tests/Remote/ApiTest.php
+index 72fd76e22..bc7ea843d 100644
+--- a/_test/tests/Remote/ApiTest.php
++++ b/_test/tests/Remote/ApiTest.php
+@@ -301,7 +301,7 @@ class ApiTest extends \DokuWikiTest
+         $conf['remoteuser'] = '';
+ 
+         $this->expectException(RemoteException::class);
+-        $this->expectExceptionCode(-32603);
++        $this->expectExceptionCode(-32601);
+ 
+         $remoteApi = new Api();
+         $remoteApi->call('does.not exist'); // unknown method type
+diff --git a/inc/Remote/Api.php b/inc/Remote/Api.php
+index f2420277e..915c59a05 100644
+--- a/inc/Remote/Api.php
++++ b/inc/Remote/Api.php
+@@ -128,7 +128,7 @@ class Api
+         $this->ensureApiIsEnabled();
+         $methods = $this->getMethods();
+         if (!isset($methods[$method])) {
+-            throw new RemoteException('Method does not exist', -32603);
++            throw new RemoteException('Method does not exist', -32601);
+         }
+         $this->ensureAccessIsAllowed($methods[$method]);
+ 

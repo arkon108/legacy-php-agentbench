@@ -1,0 +1,16 @@
+{
+  "task_id": "dw-007",
+  "config": "D",
+  "run_number": 1,
+  "model_id": "glm-5.3",
+  "resolved": false,
+  "fail_to_pass_passed": false,
+  "pass_to_pass_passed": false,
+  "tokens_in": 211724,
+  "tokens_out": 963,
+  "cost_usd": 0.3006508,
+  "wall_time_seconds": 76.5,
+  "turns": 19,
+  "diff": "",
+  "error": "token_limit"
+}

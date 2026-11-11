@@ -1,0 +1,11 @@
+{
+  "id": "dw-002",
+  "repo": "dokuwiki/dokuwiki",
+  "base_commit": "150329c0dc8e",
+  "fix_commit": "451b31ef3d1b",
+  "statement": "Numeric user names (e.g. '1000') stop working after the strict-comparison security fix. When PHP coerces a numeric array key to an integer, the strict comparisons in auth_isMember() reject it because the integer does not match the string in the config. Additionally, the is_string() guard in the bundled auth backends' getUserData() rejects integer input outright. Users with purely numeric names can no longer authenticate or appear in admin lookups.",
+  "fail_to_pass": ["auth_admin_test::test_ismanager_integer_username"],
+  "pass_to_pass": "cd _test && php vendor/bin/phpunit --no-coverage --exclude-group internet",
+  "gold_patch": "patches/451b31ef3d1b.patch",
+  "source_files": ["inc/auth.php", "lib/plugins/authad/auth.php", "lib/plugins/authldap/auth.php", "lib/plugins/authpdo/auth.php", "lib/plugins/authplain/auth.php"]
+}

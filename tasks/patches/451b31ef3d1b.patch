@@ -1,0 +1,154 @@
+diff --git a/_test/tests/inc/auth_admincheck.test.php b/_test/tests/inc/auth_admincheck.test.php
+index db507fdb6..b74bd63d6 100644
+--- a/_test/tests/inc/auth_admincheck.test.php
++++ b/_test/tests/inc/auth_admincheck.test.php
+@@ -216,4 +216,23 @@ class auth_admin_test extends DokuWikiTest
+         $this->assertFalse(auth_ismanager('1000.0', null, true, true));
+         $this->assertFalse(auth_ismanager('jill', ['1000'], true, true));
+     }
++
++    function test_ismanager_integer_username()
++    {
++        $this->setSensitive();
++        global $conf;
++        $conf['manager'] = '';
++
++        // a numeric name used as an array key is coerced to int by PHP; such a
++        // username or group must still match its textual config entry
++        $conf['superuser'] = '1000,@1000';
++        $this->assertTrue(auth_ismanager(1000, null, true, true));
++        $this->assertTrue(auth_ismanager('jill', [1000], true, true));
++
++        // strict matching is preserved: an integer name must not collide with a
++        // numerically-equal but textually-different config entry
++        $conf['superuser'] = '1e3,@1e3';
++        $this->assertFalse(auth_ismanager(1000, null, true, true));
++        $this->assertFalse(auth_ismanager('jill', [1000], true, true));
++    }
+ }
+diff --git a/inc/auth.php b/inc/auth.php
+index 665d101f2..1aea06af0 100644
+--- a/inc/auth.php
++++ b/inc/auth.php
+@@ -650,6 +650,12 @@ function auth_isMember($memberlist, $user, array $groups)
+     global $auth;
+     if (!$auth instanceof AuthPlugin) return false;
+ 
++    // numeric names may arrive as integers when they were used as array keys
++    // (PHP coerces numeric keys); cast to string so the strict comparisons
++    // below match again without weakening them
++    $user   = (string) $user;
++    $groups = array_map(strval(...), $groups);
++
+     // clean user and groups
+     if (!$auth->isCaseSensitive()) {
+         $user   = PhpString::strtolower($user);
+diff --git a/lib/plugins/authad/auth.php b/lib/plugins/authad/auth.php
+index 72258db6b..18502783c 100644
+--- a/lib/plugins/authad/auth.php
++++ b/lib/plugins/authad/auth.php
+@@ -207,7 +207,9 @@ class auth_plugin_authad extends AuthPlugin
+         global $lang;
+         global $ID;
+         global $INPUT;
+-        if (!is_string($user) || $user == '') return false;
++        if (!is_string($user) && !is_int($user)) return false;
++        $user = (string) $user;
++        if ($user == '') return false;
+         $adldap = $this->initAdLdap($this->getUserDomain($user));
+         if (!$adldap) return false;
+ 
+diff --git a/lib/plugins/authldap/auth.php b/lib/plugins/authldap/auth.php
+index 3952b65ce..b2a887d0c 100644
+--- a/lib/plugins/authldap/auth.php
++++ b/lib/plugins/authldap/auth.php
+@@ -153,7 +153,9 @@ class auth_plugin_authldap extends AuthPlugin
+      */
+     public function getUserData($user, $requireGroups = true)
+     {
+-        if (!is_string($user) || $user == '') return false;
++        if (!is_string($user) && !is_int($user)) return false;
++        $user = (string) $user;
++        if ($user == '') return false;
+         return $this->fetchUserData($user);
+     }
+ 
+diff --git a/lib/plugins/authpdo/auth.php b/lib/plugins/authpdo/auth.php
+index ef17f6d3b..3a6c33f14 100644
+--- a/lib/plugins/authpdo/auth.php
++++ b/lib/plugins/authpdo/auth.php
+@@ -164,7 +164,8 @@ class auth_plugin_authpdo extends AuthPlugin
+      */
+     public function getUserData($user, $requireGroups = true)
+     {
+-        if (!is_string($user)) return false;
++        if (!is_string($user) && !is_int($user)) return false;
++        $user = (string) $user;
+         $data = $this->selectUser($user);
+         if ($data == false) return false;
+ 
+diff --git a/lib/plugins/authplain/_test/conf/auth.users.php b/lib/plugins/authplain/_test/conf/auth.users.php
+index 87f54fedb..54d5a1926 100644
+--- a/lib/plugins/authplain/_test/conf/auth.users.php
++++ b/lib/plugins/authplain/_test/conf/auth.users.php
+@@ -14,3 +14,4 @@ user_2:$1$2uJ5C3ib$edo0EDEb/yLAFHme7RK851:User 2:user2@example.com:user,second_g
+ user_3:$1$yqnlDqgZ$Sste968uKhuxH6wIQt6/D/:User 3:user3@example.com:user,fourth_group,first_group,third_group
+ user_4:$1$tXjajS9s$peoGPBQep.P245H1Lfloj0:User 4:user4@example.com:user,third_group
+ user_5:$1$IWrqdhol$xXOmufjZ2hW1aAVp7zDP.1:User 5:user5@example.com:user,second_group,fifth_group
++1000:$1$tGu7CW5z$VpsMjRIx5tbyOJaQ2SP23.:Numeric User:numeric@example.com:user
+diff --git a/lib/plugins/authplain/_test/userdata.test.php b/lib/plugins/authplain/_test/userdata.test.php
+index 0e74c1269..38464690e 100644
+--- a/lib/plugins/authplain/_test/userdata.test.php
++++ b/lib/plugins/authplain/_test/userdata.test.php
+@@ -81,4 +81,18 @@ class userdata_test extends DokuWikiTest
+     {
+         $this->assertFalse($this->auth->getUserData(['user_1', 'user_2']));
+     }
++
++    /**
++     * PHP coerces a numeric user name to an integer array key. Passing such a
++     * name back as an integer must resolve to the same record as its string
++     * form instead of being rejected as a non-string.
++     */
++    public function test_getUserData_integer()
++    {
++        $expected = $this->auth->getUserData('1000');
++        $this->assertIsArray($expected);
++        $this->assertEquals('numeric@example.com', $expected['mail']);
++
++        $this->assertSame($expected, $this->auth->getUserData(1000));
++    }
+ }
+diff --git a/lib/plugins/authplain/auth.php b/lib/plugins/authplain/auth.php
+index ae7501393..8eda6f274 100644
+--- a/lib/plugins/authplain/auth.php
++++ b/lib/plugins/authplain/auth.php
+@@ -93,7 +93,8 @@ class auth_plugin_authplain extends AuthPlugin
+      */
+     public function getUserData($user, $requireGroups = true)
+     {
+-        if (!is_string($user)) return false;
++        if (!is_string($user) && !is_int($user)) return false;
++        $user = (string) $user;
+         if ($this->users === null) $this->loadUserData();
+         return $this->users[$user] ?? false;
+     }
+@@ -297,7 +298,8 @@ class auth_plugin_authplain extends AuthPlugin
+         $this->constructPattern($filter);
+ 
+         foreach ($this->users as $user => $info) {
+-            $count += $this->filter($user, $info);
++            // numeric names are coerced to int array keys, cast back to string
++            $count += $this->filter((string) $user, $info);
+         }
+ 
+         return $count;
+@@ -326,6 +328,8 @@ class auth_plugin_authplain extends AuthPlugin
+         $this->constructPattern($filter);
+ 
+         foreach ($this->users as $user => $info) {
++            // numeric names are coerced to int array keys, cast back to string
++            $user = (string) $user;
+             if ($this->filter($user, $info)) {
+                 if ($i >= $start) {
+                     $out[$user] = $info;

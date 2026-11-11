@@ -1,0 +1,24 @@
+diff --git a/inc/Feed/FeedParserFile.php b/inc/Feed/FeedParserFile.php
+index 3ee5cc96a..927518110 100644
+--- a/inc/Feed/FeedParserFile.php
++++ b/inc/Feed/FeedParserFile.php
+@@ -69,7 +69,18 @@ class FeedParserFile extends File
+      */
+     protected function normalizeHeaders($headers)
+     {
+-        return array_map(static fn($value) => array_map(trim(...), explode(',', (string)$value)), $headers);
++        return array_map(static function ($value) {
++            if (is_array($value)) {
++                $result = [];
++                foreach ($value as $v) {
++                    foreach (explode(',', (string)$v) as $part) {
++                        $result[] = trim($part);
++                    }
++                }
++                return $result;
++            }
++            return array_map(trim(...), explode(',', (string)$value));
++        }, $headers);
+     }
+ 
+     // the following methods implement SimplePie's Response interface and have to keep its naming

@@ -1,0 +1,16 @@
+{
+  "task_id": "dw-004",
+  "config": "C",
+  "run_number": 2,
+  "model_id": "qwen3.7-plus",
+  "resolved": false,
+  "fail_to_pass_passed": false,
+  "pass_to_pass_passed": false,
+  "tokens_in": 221169,
+  "tokens_out": 5633,
+  "cost_usd": 0.09748040000000001,
+  "wall_time_seconds": 202.2,
+  "turns": 14,
+  "diff": "diff --git a/inc/Search/Query/QueryEvaluator.php b/inc/Search/Query/QueryEvaluator.php\nindex 8c3f9fa44..366a97052 100644\n--- a/inc/Search/Query/QueryEvaluator.php\n+++ b/inc/Search/Query/QueryEvaluator.php\n@@ -71,6 +71,8 @@ class QueryEvaluator\n                     $word = substr($token, 3);\n                     if (isset($this->terms[$word])) {\n                         $stack[] = new PageSet($this->terms[$word]->getEntityFrequencies());\n+                    } else {\n+                        $stack[] = new PageSet();\n                     }\n                     break;\n \n",
+  "error": "token_limit"
+}

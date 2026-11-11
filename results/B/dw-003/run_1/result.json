@@ -1,0 +1,16 @@
+{
+  "task_id": "dw-003",
+  "config": "B",
+  "run_number": 1,
+  "model_id": "qwen3.7-plus",
+  "resolved": true,
+  "fail_to_pass_passed": true,
+  "pass_to_pass_passed": true,
+  "tokens_in": 21224,
+  "tokens_out": 5060,
+  "cost_usd": 0.068273,
+  "wall_time_seconds": 411.0,
+  "turns": 6,
+  "diff": "diff --git a/inc/Search/Index/TupleOps.php b/inc/Search/Index/TupleOps.php\nindex 800bd014b..867065940 100644\n--- a/inc/Search/Index/TupleOps.php\n+++ b/inc/Search/Index/TupleOps.php\n@@ -23,7 +23,7 @@ class TupleOps\n     {\n         if ($record != '') {\n             // remove any current version of the tuple (with or without explicit count)\n-            $record = preg_replace('/(^|:)' . preg_quote($key, '/') . '(\\*\\d+)?/', '', $record);\n+            $record = preg_replace('/(^|:)' . preg_quote($key, '/') . '(\\*\\d+)?(?=:|$)/', '', $record);\n         }\n         $record = trim($record, ':');\n         if ($count) {\n",
+  "error": null
+}

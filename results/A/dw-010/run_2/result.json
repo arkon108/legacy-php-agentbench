@@ -1,0 +1,16 @@
+{
+  "task_id": "dw-010",
+  "config": "A",
+  "run_number": 2,
+  "model_id": "qwen3.8-max",
+  "resolved": true,
+  "fail_to_pass_passed": true,
+  "pass_to_pass_passed": true,
+  "tokens_in": 303939,
+  "tokens_out": 12814,
+  "cost_usd": 0.5650567900000001,
+  "wall_time_seconds": 440.8,
+  "turns": 22,
+  "diff": "diff --git a/inc/Feed/FeedParserFile.php b/inc/Feed/FeedParserFile.php\nindex 3ee5cc96a..a137aabc2 100644\n--- a/inc/Feed/FeedParserFile.php\n+++ b/inc/Feed/FeedParserFile.php\n@@ -64,12 +64,23 @@ class FeedParserFile extends File\n      * Converts DokuHTTPClient's \"name => value\" headers into SimplePie's\n      * \"name => [values]\" representation\n      *\n-     * @param array<string, string> $headers\n+     * Headers that occurred more than once (eg. multiple Set-Cookie headers) are stored\n+     * as arrays by DokuHTTPClient. Those must not be cast to a string (which would give\n+     * the literal \"Array\" plus a PHP warning), but be kept as the separate values they are.\n+     *\n+     * @param array<string, string|string[]> $headers\n      * @return array<string, string[]>\n      */\n     protected function normalizeHeaders($headers)\n     {\n-        return array_map(static fn($value) => array_map(trim(...), explode(',', (string)$value)), $headers);\n+        return array_map(\n+            static function ($value) {\n+                // repeated headers already come as a list of values, single ones may be comma separated\n+                $values = is_array($value) ? $value : explode(',', (string)$value);\n+                return array_map(trim(...), $values);\n+            },\n+            (array)$headers\n+        );\n     }\n \n     // the following methods implement SimplePie's Response interface and have to keep its naming\n",
+  "error": null
+}

@@ -1,0 +1,11 @@
+{
+  "id": "dw-005",
+  "repo": "dokuwiki/dokuwiki",
+  "base_commit": "12ead38a3265",
+  "fix_commit": "9255329a6ed6",
+  "statement": "When fetching an external feed fails due to a transport-level error (connection refused, SSL unsupported, timeout), DokuWiki reports 'unsupported status code -100' instead of the actual error message like 'Could not connect to server'. The real error message is available in the HTTP client's error field but never surfaces to the user because SimplePie only turns a file error into a reported exception when the status code is zero, and DokuHTTPClient reports transport failures as negative pseudo status codes.",
+  "fail_to_pass": ["dokuwiki\\test\\Feed\\FeedParserTest::testTransportFailureIsReportedWithStatusZero"],
+  "pass_to_pass": "cd _test && php vendor/bin/phpunit --no-coverage --exclude-group internet",
+  "gold_patch": "patches/9255329a6ed6.patch",
+  "source_files": ["inc/Feed/FeedParserFile.php"]
+}

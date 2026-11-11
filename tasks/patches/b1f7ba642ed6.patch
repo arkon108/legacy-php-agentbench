@@ -1,0 +1,115 @@
+diff --git a/_test/tests/Search/Query/QueryEvaluatorTest.php b/_test/tests/Search/Query/QueryEvaluatorTest.php
+index 3b6c89a38..ba6eb44e5 100644
+--- a/_test/tests/Search/Query/QueryEvaluatorTest.php
++++ b/_test/tests/Search/Query/QueryEvaluatorTest.php
+@@ -267,5 +267,18 @@ class QueryEvaluatorTest extends \DokuWikiTest
+         $this->assertEquals([], $result);
+     }
+ 
++    public function testAndIgnoresMissingOperand()
++    {
++        $terms = [
++            'wiki' => $this->makeTerm('wiki', ['page1' => 2, 'page2' => 1]),
++        ];
++        $rpn = ['W+:wiki', 'W+:a*', 'AND'];
++
++        $evaluator = new QueryEvaluator($rpn, $terms);
++        $result = $evaluator->evaluate();
++
++        $this->assertEquals(['page1' => 2, 'page2' => 1], $result);
++    }
++
+     // endregion
+ }
+diff --git a/_test/tests/Search/Query/QueryParserTest.php b/_test/tests/Search/Query/QueryParserTest.php
+index f00ac9141..2d0c1f612 100644
+--- a/_test/tests/Search/Query/QueryParserTest.php
++++ b/_test/tests/Search/Query/QueryParserTest.php
+@@ -78,4 +78,13 @@ class QueryParserTest extends \DokuWikiTest
+ 
+         $this->assertEquals('test -baz "foo bar" @abc ^def', $actualQuery);
+     }
++
++    public function testConvertDropsTooShortWildcardTerms()
++    {
++        $actualParsedQuery = (new QueryParser)->convert('wiki a*');
++
++        $this->assertEquals(['W+:wiki'], $actualParsedQuery['parsed_ary']);
++        $this->assertEquals(['wiki'], $actualParsedQuery['words']);
++        $this->assertEquals(['wiki'], $actualParsedQuery['highlight']);
++    }
+ }
+diff --git a/inc/Search/Query/QueryEvaluator.php b/inc/Search/Query/QueryEvaluator.php
+index 8c3f9fa44..e7f0cbb16 100644
+--- a/inc/Search/Query/QueryEvaluator.php
++++ b/inc/Search/Query/QueryEvaluator.php
+@@ -93,17 +93,36 @@ class QueryEvaluator
+                 case 'AND':
+                     $right = array_pop($stack);
+                     $left = array_pop($stack);
++                    if (!$left && !$right) break;
++                    if (!$left) {
++                        $stack[] = $right;
++                        break;
++                    }
++                    if (!$right) {
++                        $stack[] = $left;
++                        break;
++                    }
+                     $stack[] = $this->opAnd($left, $right);
+                     break;
+ 
+                 case 'OR':
+                     $right = array_pop($stack);
+                     $left = array_pop($stack);
++                    if (!$left && !$right) break;
++                    if (!$left) {
++                        $stack[] = $right;
++                        break;
++                    }
++                    if (!$right) {
++                        $stack[] = $left;
++                        break;
++                    }
+                     $stack[] = $this->opOr($left, $right);
+                     break;
+ 
+                 case 'NOT':
+                     $operand = array_pop($stack);
++                    if (!$operand) break;
+                     $stack[] = new NegatedEntry($operand);
+                     break;
+             }
+diff --git a/inc/Search/Tokenizer.php b/inc/Search/Tokenizer.php
+index b494aa0c7..2414ea645 100644
+--- a/inc/Search/Tokenizer.php
++++ b/inc/Search/Tokenizer.php
+@@ -69,15 +69,15 @@ class Tokenizer
+      * Plugins intercepting this event should also intercept INDEX_VERSION_GET
+      *
+      * @param string $text plain text
+-     * @param bool $wc are wildcards allowed?
++     * @param bool $wcOk are wildcards allowed?
+      * @return array  list of words in the text
+      *
+      * @author Tom N Harris <tnharris@whoopdedo.org>
+      * @author Andreas Gohr <andi@splitbrain.org>
+      */
+-    public static function getWords(string $text, bool $wc = false): array
++    public static function getWords(string $text, bool $wcOk = false): array
+     {
+-        $wc = ($wc) ? '' : '\*';
++        $wc = $wcOk ? '' : '\*';
+ 
+         // prepare the text to be tokenized
+         $event = new Event('INDEXER_TEXT_PREPARE', $text);
+@@ -106,7 +106,9 @@ class Tokenizer
+         }
+ 
+         foreach ($wordlist as $i => $word) {
++            $isInvalidWildcardTerm = $wcOk && str_contains($word, '*') && !static::isValidSearchTerm($word);
+             if (
++                $isInvalidWildcardTerm ||
+                 (!is_numeric($word) && strlen($word) < static::getMinWordLength())
+                 || in_array($word, static::getStopwords(), true)
+             ) {

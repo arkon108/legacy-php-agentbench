@@ -1,0 +1,41 @@
+diff --git a/_test/tests/Feed/FeedParserTest.php b/_test/tests/Feed/FeedParserTest.php
+index 9820a8315..cfded7816 100644
+--- a/_test/tests/Feed/FeedParserTest.php
++++ b/_test/tests/Feed/FeedParserTest.php
+@@ -69,13 +69,18 @@ XML;
+     }
+ 
+     /**
+-     * A genuine connection failure must stay distinguishable from a success
++     * DokuHTTPClient reports transport failures (no connection, SSL unsupported, timeout)
++     * as negative pseudo statuses while carrying the real message in its error field.
++     * SimplePie's FileClient only turns a file error into a thrown ClientException -- and
++     * thus surfaces that message -- when the status code is zero; any other value is
++     * reported as "unsupported status code" and the real message is lost. The pseudo
++     * statuses are therefore clamped to zero so the descriptive error reaches the output.
+      */
+-    public function testFailedResponseKeepsStatusAndError()
++    public function testTransportFailureIsReportedWithStatusZero()
+     {
+         $file = $this->fetchedFile(-100, 'Could not connect to server', '');
+ 
+-        $this->assertSame(-100, $file->get_status_code());
++        $this->assertSame(0, $file->get_status_code());
+         $this->assertSame('Could not connect to server', $file->error);
+     }
+ 
+diff --git a/inc/Feed/FeedParserFile.php b/inc/Feed/FeedParserFile.php
+index b467e6feb..e1401f127 100644
+--- a/inc/Feed/FeedParserFile.php
++++ b/inc/Feed/FeedParserFile.php
+@@ -40,7 +40,9 @@ class FeedParserFile extends File
+         $this->success = $this->http->sendRequest($url);
+ 
+         $this->requestUrl = $url;
+-        $this->responseStatus = (int)$this->http->status;
++        // DokuHTTPClient reports transport failures as negative pseudo statuses (-100 etc.),
++        // but SimplePie only surfaces our error message when the status code is 0
++        $this->responseStatus = max(0, (int)$this->http->status);
+         $this->responseBody = (string)$this->http->resp_body;
+         $this->responseHeaders = $this->normalizeHeaders($this->http->resp_headers);
+         // DokuHTTPClient uses an empty string for "no error", but SimplePie's FileClient

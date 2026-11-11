@@ -1,0 +1,47 @@
+{
+  "configs": {
+    "A": {
+      "total_runs": 36,
+      "resolved": 6,
+      "total_cost_usd": 28.9414,
+      "avg_cost_per_run": 0.8039,
+      "cost_per_resolved": 4.8236
+    },
+    "B": {
+      "total_runs": 36,
+      "resolved": 9,
+      "total_cost_usd": 3.1531,
+      "avg_cost_per_run": 0.0876,
+      "cost_per_resolved": 0.3503
+    },
+    "C": {
+      "total_runs": 36,
+      "resolved": 6,
+      "total_cost_usd": 2.8507,
+      "avg_cost_per_run": 0.0792,
+      "cost_per_resolved": 0.4751
+    },
+    "D": {
+      "total_runs": 36,
+      "resolved": 3,
+      "total_cost_usd": 9.2959,
+      "avg_cost_per_run": 0.2582,
+      "cost_per_resolved": 3.0986
+    }
+  },
+  "tasks": [
+    "dw-001",
+    "dw-002",
+    "dw-003",
+    "dw-004",
+    "dw-005",
+    "dw-006",
+    "dw-007",
+    "dw-008",
+    "dw-009",
+    "dw-010",
+    "dw-011",
+    "dw-012"
+  ],
+  "total_cost_usd": 44.2411
+}

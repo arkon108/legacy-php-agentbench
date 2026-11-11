@@ -1,0 +1,15 @@
+diff --git a/inc/Remote/JsonRpcServer.php b/inc/Remote/JsonRpcServer.php
+index 750136756..1412e9a70 100644
+--- a/inc/Remote/JsonRpcServer.php
++++ b/inc/Remote/JsonRpcServer.php
+@@ -193,6 +193,10 @@ class JsonRpcServer
+             }
+         } catch (RemoteException $e) {
+             http_status(400);
++            // Translate "method not found" to the correct JSON-RPC error code
++            if ($e->getCode() === -32603 && $e->getMessage() === 'Method does not exist') {
++                throw new RemoteException($e->getMessage(), -32601, $e);
++            }
+             throw $e;
+         }
+     }

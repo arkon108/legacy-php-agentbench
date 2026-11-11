@@ -1,0 +1,11 @@
+{
+  "id": "dw-006",
+  "repo": "dokuwiki/dokuwiki",
+  "base_commit": "e1a569f93e8d",
+  "fix_commit": "c7da97825378",
+  "statement": "Calling core.whoAmI through the Remote API without being logged in throws a plain RuntimeException ('No user available') that neither the XML-RPC nor JSON-RPC server maps to a proper error. The client receives error code 1 with HTTP 200, making it indistinguishable from a server bug. An anonymous call to whoAmI should return an access-denied error (HTTP 401) so the client knows authentication is required.",
+  "fail_to_pass": ["dokuwiki\\test\\Remote\\ApiCoreTest::testWhoAmIAnonymous"],
+  "pass_to_pass": "cd _test && php vendor/bin/phpunit --no-coverage --exclude-group internet",
+  "gold_patch": "patches/c7da97825378.patch",
+  "source_files": ["inc/Remote/ApiCore.php", "inc/Remote/Response/User.php"]
+}

@@ -1,0 +1,27 @@
+diff --git a/_test/tests/Search/Index/TupleOpsTest.php b/_test/tests/Search/Index/TupleOpsTest.php
+index 9ee6f7e6b..dbd8dd6d3 100644
+--- a/_test/tests/Search/Index/TupleOpsTest.php
++++ b/_test/tests/Search/Index/TupleOpsTest.php
+@@ -25,6 +25,9 @@ class TupleOpsTest extends \DokuWikiTest
+             ['bar*2:foo', 'foo', 5, 'foo*5:bar*2'],
+             ['18:17', 17, 3, '17*3:18'],
+             ['18:17', 19, 1, '19:18:17'],
++            // numeric keys must only replace exact tuple IDs, not decimal prefixes
++            ['170*4:17*2:171*3', 17, 5, '17*5:170*4:171*3'],
++            ['170:17:171*3', 17, 0, '170:171*3'],
+             // existing 1 counts are not updated unless touched directly
+             ['foo*4:bar*1:baz*3', 'uff', 2, 'uff*2:foo*4:bar*1:baz*3'],
+             ['foo*4:bar*1:baz*3', 'bar', 1, 'bar:foo*4:baz*3'],
+diff --git a/inc/Search/Index/TupleOps.php b/inc/Search/Index/TupleOps.php
+index 800bd014b..c4a64b146 100644
+--- a/inc/Search/Index/TupleOps.php
++++ b/inc/Search/Index/TupleOps.php
+@@ -23,7 +23,7 @@ class TupleOps
+     {
+         if ($record != '') {
+             // remove any current version of the tuple (with or without explicit count)
+-            $record = preg_replace('/(^|:)' . preg_quote($key, '/') . '(\*\d+)?/', '', $record);
++            $record = preg_replace('/(^|:)' . preg_quote((string)$key, '/') . '(?:\*\d+)?(?=:|$)/', '', $record);
+         }
+         $record = trim($record, ':');
+         if ($count) {

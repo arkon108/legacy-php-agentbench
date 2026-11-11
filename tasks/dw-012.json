@@ -1,0 +1,14 @@
+{
+  "id": "dw-012",
+  "repo": "dokuwiki/dokuwiki",
+  "base_commit": "0a245329500f",
+  "fix_commit": "eab6268cca33",
+  "statement": "When DokuWiki detects an external edit to a page whose modification time predates the most recent entry in the global recent-changes changelog, the external edit is still appended to the global changelog. This places an old-dated entry at the top of the recent changes feed, above genuinely newer entries. The page's own changelog should record the external edit, but the global feed should skip it to preserve chronological ordering.",
+  "fail_to_pass": [
+    "dokuwiki\\test\\ChangeLog\\PageChangeLogTest::testOutOfOrderExternalEditKeptOutOfGlobalChangelog",
+    "dokuwiki\\test\\ChangeLog\\PageChangeLogTest::testCurrentExternalEditReachesGlobalChangelog"
+  ],
+  "pass_to_pass": "cd _test && php vendor/bin/phpunit --no-coverage --exclude-group internet",
+  "gold_patch": "patches/eab6268cca33.patch",
+  "source_files": ["inc/ChangeLog/ChangeLog.php"]
+}

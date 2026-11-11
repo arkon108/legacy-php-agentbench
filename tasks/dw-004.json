@@ -1,0 +1,14 @@
+{
+  "id": "dw-004",
+  "repo": "dokuwiki/dokuwiki",
+  "base_commit": "e282ae55569a",
+  "fix_commit": "b1f7ba642ed6",
+  "statement": "Searching for 'wiki a*' (or any query combining a normal term with a short wildcard whose non-wildcard base is below the minimum search term length) crashes with a TypeError in QueryEvaluator::opAnd(). The query parser emits the wildcard term, but the fulltext search drops it because the base is too short. The evaluator then has an AND operator with a missing right-hand operand, causing a stack underflow during RPN evaluation.",
+  "fail_to_pass": [
+    "dokuwiki\\test\\Search\\Query\\QueryEvaluatorTest::testAndIgnoresMissingOperand",
+    "dokuwiki\\test\\Search\\Query\\QueryParserTest::testConvertDropsTooShortWildcardTerms"
+  ],
+  "pass_to_pass": "cd _test && php vendor/bin/phpunit --no-coverage --exclude-group internet",
+  "gold_patch": "patches/b1f7ba642ed6.patch",
+  "source_files": ["inc/Search/Query/QueryEvaluator.php", "inc/Search/Tokenizer.php"]
+}

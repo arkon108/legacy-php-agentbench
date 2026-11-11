@@ -1,0 +1,16 @@
+{
+  "task_id": "dw-001",
+  "config": "C",
+  "run_number": 2,
+  "model_id": "qwen3.7-plus",
+  "resolved": false,
+  "fail_to_pass_passed": false,
+  "pass_to_pass_passed": false,
+  "tokens_in": 205134,
+  "tokens_out": 7262,
+  "cost_usd": 0.0936728,
+  "wall_time_seconds": 537.3,
+  "turns": 12,
+  "diff": "diff --git a/inc/Remote/JsonRpcServer.php b/inc/Remote/JsonRpcServer.php\nindex 750136756..1412e9a70 100644\n--- a/inc/Remote/JsonRpcServer.php\n+++ b/inc/Remote/JsonRpcServer.php\n@@ -193,6 +193,10 @@ class JsonRpcServer\n             }\n         } catch (RemoteException $e) {\n             http_status(400);\n+            // Translate \"method not found\" to the correct JSON-RPC error code\n+            if ($e->getCode() === -32603 && $e->getMessage() === 'Method does not exist') {\n+                throw new RemoteException($e->getMessage(), -32601, $e);\n+            }\n             throw $e;\n         }\n     }\n",
+  "error": "token_limit"
+}

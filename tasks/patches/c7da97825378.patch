@@ -1,0 +1,62 @@
+diff --git a/_test/tests/Remote/ApiCoreTest.php b/_test/tests/Remote/ApiCoreTest.php
+index e3986b302..c8ebf2e86 100644
+--- a/_test/tests/Remote/ApiCoreTest.php
++++ b/_test/tests/Remote/ApiCoreTest.php
+@@ -134,6 +134,15 @@ class ApiCoreTest extends \DokuWikiTest
+         $this->markTestIncomplete('Missing test for core.whoAmI API Call');
+     }
+ 
++    // core.whoAmI without a logged in user
++    public function testWhoAmIAnonymous()
++    {
++        unset($_SERVER['REMOTE_USER']);
++
++        $this->expectException(AccessDeniedException::class);
++        $this->remote->call('core.whoAmI');
++    }
++
+     // core.aclCheck -> See also ApiCoreAclCheckTest.php
+     public function testAclCheck()
+     {
+diff --git a/inc/Remote/ApiCore.php b/inc/Remote/ApiCore.php
+index 2489e5eec..f7ea890c2 100644
+--- a/inc/Remote/ApiCore.php
++++ b/inc/Remote/ApiCore.php
+@@ -189,6 +189,7 @@ class ApiCore
+      * Info about the currently authenticated user
+      *
+      * @return User
++     * @throws AccessDeniedException when no user is logged in
+      */
+     public function whoAmI()
+     {
+diff --git a/inc/Remote/Response/User.php b/inc/Remote/Response/User.php
+index 35c512785..124399b51 100644
+--- a/inc/Remote/Response/User.php
++++ b/inc/Remote/Response/User.php
+@@ -2,6 +2,8 @@
+ 
+ namespace dokuwiki\Remote\Response;
+ 
++use dokuwiki\Remote\AccessDeniedException;
++
+ /**
+  * Represents a user
+  */
+@@ -25,6 +27,7 @@ class User extends ApiResponse
+      * @param string $name
+      * @param string $mail
+      * @param string[] $groups
++     * @throws AccessDeniedException when no user is given and nobody is logged in
+      */
+     public function __construct($login = '', $name = '', $mail = '', $groups = [])
+     {
+@@ -42,7 +45,7 @@ class User extends ApiResponse
+         }
+ 
+         if ($this->login === '') {
+-            throw new \RuntimeException('No user available');
++            throw new AccessDeniedException('No user available', -32604);
+         }
+ 
+         // for current user, use $USERINFO to fill up

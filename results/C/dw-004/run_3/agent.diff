@@ -1,0 +1,13 @@
+diff --git a/inc/Search/Query/QueryEvaluator.php b/inc/Search/Query/QueryEvaluator.php
+index 8c3f9fa44..366a97052 100644
+--- a/inc/Search/Query/QueryEvaluator.php
++++ b/inc/Search/Query/QueryEvaluator.php
+@@ -71,6 +71,8 @@ class QueryEvaluator
+                     $word = substr($token, 3);
+                     if (isset($this->terms[$word])) {
+                         $stack[] = new PageSet($this->terms[$word]->getEntityFrequencies());
++                    } else {
++                        $stack[] = new PageSet();
+                     }
+                     break;
+ 

@@ -1,0 +1,19 @@
+diff --git a/inc/Search/Index/TupleOps.php b/inc/Search/Index/TupleOps.php
+index 800bd014b..21773428a 100644
+--- a/inc/Search/Index/TupleOps.php
++++ b/inc/Search/Index/TupleOps.php
+@@ -23,7 +23,13 @@ class TupleOps
+     {
+         if ($record != '') {
+             // remove any current version of the tuple (with or without explicit count)
+-            $record = preg_replace('/(^|:)' . preg_quote($key, '/') . '(\*\d+)?/', '', $record);
++            // the key must be followed by the end of the record, a tuple separator or a count
++            // marker, otherwise keys sharing a prefix (eg. 17 and 170) would be corrupted
++            $record = preg_replace(
++                '/(^|:)' . preg_quote($key, '/') . '(\*\d+)?(?=$|:)/',
++                '',
++                $record
++            );
+         }
+         $record = trim($record, ':');
+         if ($count) {

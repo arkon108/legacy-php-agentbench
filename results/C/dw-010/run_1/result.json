@@ -1,0 +1,16 @@
+{
+  "task_id": "dw-010",
+  "config": "C",
+  "run_number": 1,
+  "model_id": "qwen3.7-plus",
+  "resolved": true,
+  "fail_to_pass_passed": true,
+  "pass_to_pass_passed": true,
+  "tokens_in": 77500,
+  "tokens_out": 4367,
+  "cost_usd": 0.0379872,
+  "wall_time_seconds": 162.2,
+  "turns": 10,
+  "diff": "diff --git a/inc/Feed/FeedParserFile.php b/inc/Feed/FeedParserFile.php\nindex 3ee5cc96a..24a2f79fd 100644\n--- a/inc/Feed/FeedParserFile.php\n+++ b/inc/Feed/FeedParserFile.php\n@@ -69,7 +69,12 @@ class FeedParserFile extends File\n      */\n     protected function normalizeHeaders($headers)\n     {\n-        return array_map(static fn($value) => array_map(trim(...), explode(',', (string)$value)), $headers);\n+        return array_map(static function ($value) {\n+            if (is_array($value)) {\n+                return array_map(trim(...), $value);\n+            }\n+            return array_map(trim(...), explode(',', (string)$value));\n+        }, $headers);\n     }\n \n     // the following methods implement SimplePie's Response interface and have to keep its naming\n",
+  "error": null
+}

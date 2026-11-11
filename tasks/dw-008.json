@@ -1,0 +1,11 @@
+{
+  "id": "dw-008",
+  "repo": "dokuwiki/dokuwiki",
+  "base_commit": "59232b81859c",
+  "fix_commit": "3ed34089439e",
+  "statement": "The superuser, manager, and ACL membership checks in auth_isMember() and auth_aclcheck_cb() use PHP's loose comparison (in_array without strict mode, or == instead of ===). This means a superuser or manager entry named with a numeric string like '1e3' matches any user or group whose name is numerically equal ('1000', '01000', '1000.0'). Such names pass auth_nameencode() unchanged, allowing silent privilege escalation when an administrator configures a numeric-string superuser or group name.",
+  "fail_to_pass": ["auth_admin_test::test_ismanager_numeric_no_typejuggling"],
+  "pass_to_pass": "cd _test && php vendor/bin/phpunit --no-coverage --exclude-group internet",
+  "gold_patch": "patches/3ed34089439e.patch",
+  "source_files": ["inc/auth.php"]
+}

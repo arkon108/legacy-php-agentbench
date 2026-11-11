@@ -1,0 +1,16 @@
+{
+  "task_id": "dw-001",
+  "config": "A",
+  "run_number": 2,
+  "model_id": "qwen3.8-max",
+  "resolved": true,
+  "fail_to_pass_passed": true,
+  "pass_to_pass_passed": true,
+  "tokens_in": 504324,
+  "tokens_out": 11287,
+  "cost_usd": 0.88811812,
+  "wall_time_seconds": 431.9,
+  "turns": 23,
+  "diff": "diff --git a/inc/Remote/Api.php b/inc/Remote/Api.php\nindex f2420277e..915c59a05 100644\n--- a/inc/Remote/Api.php\n+++ b/inc/Remote/Api.php\n@@ -128,7 +128,7 @@ class Api\n         $this->ensureApiIsEnabled();\n         $methods = $this->getMethods();\n         if (!isset($methods[$method])) {\n-            throw new RemoteException('Method does not exist', -32603);\n+            throw new RemoteException('Method does not exist', -32601);\n         }\n         $this->ensureAccessIsAllowed($methods[$method]);\n \n",
+  "error": "token_limit"
+}

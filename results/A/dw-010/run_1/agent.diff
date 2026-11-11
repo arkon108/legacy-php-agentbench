@@ -1,0 +1,38 @@
+diff --git a/inc/Feed/FeedParserFile.php b/inc/Feed/FeedParserFile.php
+index 3ee5cc96a..1d8b3a06d 100644
+--- a/inc/Feed/FeedParserFile.php
++++ b/inc/Feed/FeedParserFile.php
+@@ -64,12 +64,31 @@ class FeedParserFile extends File
+      * Converts DokuHTTPClient's "name => value" headers into SimplePie's
+      * "name => [values]" representation
+      *
+-     * @param array<string, string> $headers
++     * DokuHTTPClient stores headers that occurred more than once (eg. multiple Set-Cookie
++     * headers) as an array of values instead of a single string. Those need to be kept
++     * as separate values instead of being cast to a string.
++     *
++     * @param array<string, string|string[]> $headers
+      * @return array<string, string[]>
+      */
+     protected function normalizeHeaders($headers)
+     {
+-        return array_map(static fn($value) => array_map(trim(...), explode(',', (string)$value)), $headers);
++        $normalized = [];
++        foreach ((array)$headers as $name => $value) {
++            // headers that occurred multiple times are stored as array by the HTTP client
++            $values = is_array($value) ? $value : [$value];
++
++            // each value may itself be a comma separated list of values
++            $parts = [];
++            foreach ($values as $val) {
++                foreach (explode(',', (string)$val) as $part) {
++                    $parts[] = trim($part);
++                }
++            }
++
++            $normalized[$name] = $parts;
++        }
++        return $normalized;
+     }
+ 
+     // the following methods implement SimplePie's Response interface and have to keep its naming

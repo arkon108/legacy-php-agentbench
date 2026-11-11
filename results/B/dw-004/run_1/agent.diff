@@ -1,0 +1,14 @@
+diff --git a/inc/Search/Query/QueryEvaluator.php b/inc/Search/Query/QueryEvaluator.php
+index 8c3f9fa44..d3c3d0e90 100644
+--- a/inc/Search/Query/QueryEvaluator.php
++++ b/inc/Search/Query/QueryEvaluator.php
+@@ -71,6 +71,9 @@ class QueryEvaluator
+                     $word = substr($token, 3);
+                     if (isset($this->terms[$word])) {
+                         $stack[] = new PageSet($this->terms[$word]->getEntityFrequencies());
++                    } else {
++                        // term was dropped (e.g. too short) — push empty set to keep RPN balanced
++                        $stack[] = new PageSet();
+                     }
+                     break;
+ 

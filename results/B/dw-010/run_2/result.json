@@ -1,0 +1,16 @@
+{
+  "task_id": "dw-010",
+  "config": "B",
+  "run_number": 2,
+  "model_id": "qwen3.7-plus",
+  "resolved": true,
+  "fail_to_pass_passed": true,
+  "pass_to_pass_passed": true,
+  "tokens_in": 99117,
+  "tokens_out": 4629,
+  "cost_usd": 0.0470532,
+  "wall_time_seconds": 1219.3,
+  "turns": 11,
+  "diff": "diff --git a/inc/Feed/FeedParserFile.php b/inc/Feed/FeedParserFile.php\nindex 3ee5cc96a..7a44f72ea 100644\n--- a/inc/Feed/FeedParserFile.php\n+++ b/inc/Feed/FeedParserFile.php\n@@ -64,12 +64,19 @@ class FeedParserFile extends File\n      * Converts DokuHTTPClient's \"name => value\" headers into SimplePie's\n      * \"name => [values]\" representation\n      *\n-     * @param array<string, string> $headers\n+     * @param array<string, string|string[]> $headers\n      * @return array<string, string[]>\n      */\n     protected function normalizeHeaders($headers)\n     {\n-        return array_map(static fn($value) => array_map(trim(...), explode(',', (string)$value)), $headers);\n+        return array_map(static function ($value) {\n+            if (is_array($value)) {\n+                // Multiple headers with the same name (e.g. Set-Cookie)\n+                // Each element is already a separate header value\n+                return array_map(static fn($v) => trim((string)$v), $value);\n+            }\n+            return array_map(trim(...), explode(',', (string)$value));\n+        }, $headers);\n     }\n \n     // the following methods implement SimplePie's Response interface and have to keep its naming\n",
+  "error": null
+}

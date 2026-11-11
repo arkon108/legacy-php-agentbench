@@ -1,0 +1,11 @@
+{
+  "id": "dw-001",
+  "repo": "dokuwiki/dokuwiki",
+  "base_commit": "58e7d9171f7e",
+  "fix_commit": "8bf435bdf8ff",
+  "statement": "When calling a non-existent method through the DokuWiki Remote API, the error response uses JSON-RPC error code -32603 (internal server error). According to both the XML-RPC fault code interoperability spec and JSON-RPC 2.0, an unknown method should return -32601 (method not found). A client distinguishing 'method not found' from 'internal error' by code will misclassify this failure.",
+  "fail_to_pass": ["dokuwiki\\test\\Remote\\ApiTest::testNotExistingCall"],
+  "pass_to_pass": "cd _test && php vendor/bin/phpunit --no-coverage --exclude-group internet",
+  "gold_patch": "patches/8bf435bdf8ff.patch",
+  "source_files": ["inc/Remote/Api.php"]
+}

@@ -1,0 +1,16 @@
+{
+  "task_id": "dw-003",
+  "config": "D",
+  "run_number": 3,
+  "model_id": "glm-5.3",
+  "resolved": true,
+  "fail_to_pass_passed": true,
+  "pass_to_pass_passed": true,
+  "tokens_in": 179380,
+  "tokens_out": 22390,
+  "cost_usd": 0.35700940000000003,
+  "wall_time_seconds": 673.9,
+  "turns": 19,
+  "diff": "diff --git a/inc/Search/Index/TupleOps.php b/inc/Search/Index/TupleOps.php\nindex 800bd014b..897be37a2 100644\n--- a/inc/Search/Index/TupleOps.php\n+++ b/inc/Search/Index/TupleOps.php\n@@ -23,7 +23,13 @@ class TupleOps\n     {\n         if ($record != '') {\n             // remove any current version of the tuple (with or without explicit count)\n-            $record = preg_replace('/(^|:)' . preg_quote($key, '/') . '(\\*\\d+)?/', '', $record);\n+            // the lookahead ensures the key ends at a tuple boundary, so updating key 17\n+            // does not touch tuples for 170, 171, etc.\n+            $record = preg_replace(\n+                '/(^|:)' . preg_quote($key, '/') . '(\\*\\d+)?(?=:|$)/',\n+                '',\n+                $record\n+            );\n         }\n         $record = trim($record, ':');\n         if ($count) {\n",
+  "error": "token_limit"
+}

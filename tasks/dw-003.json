@@ -1,0 +1,11 @@
+{
+  "id": "dw-003",
+  "repo": "dokuwiki/dokuwiki",
+  "base_commit": "45717242991e",
+  "fix_commit": "e282ae55569a",
+  "statement": "The search index's updateTuple() method corrupts tuples whose numeric row IDs share a common decimal prefix. For example, updating the count for row ID 17 also alters or destroys entries for IDs 170 and 171, because the replacement logic matches on a prefix rather than an exact tuple boundary. This silently corrupts the search index over time.",
+  "fail_to_pass": ["dokuwiki\\test\\Search\\Index\\TupleOpsTest::testUpdateTuple"],
+  "pass_to_pass": "cd _test && php vendor/bin/phpunit --no-coverage --exclude-group internet",
+  "gold_patch": "patches/e282ae55569a.patch",
+  "source_files": ["inc/Search/Index/TupleOps.php"]
+}

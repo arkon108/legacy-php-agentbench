@@ -1,0 +1,16 @@
+{
+  "task_id": "dw-008",
+  "config": "D",
+  "run_number": 3,
+  "model_id": "glm-5.3",
+  "resolved": false,
+  "fail_to_pass_passed": false,
+  "pass_to_pass_passed": false,
+  "tokens_in": 0,
+  "tokens_out": 0,
+  "cost_usd": 0.0,
+  "wall_time_seconds": 16.9,
+  "turns": 0,
+  "diff": "",
+  "error": "exception: Error code: 429"
+}

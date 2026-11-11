@@ -1,0 +1,16 @@
+{
+  "task_id": "dw-008",
+  "config": "A",
+  "run_number": 1,
+  "model_id": "qwen3.8-max",
+  "resolved": false,
+  "fail_to_pass_passed": false,
+  "pass_to_pass_passed": false,
+  "tokens_in": 456948,
+  "tokens_out": 10602,
+  "cost_usd": 0.80655012,
+  "wall_time_seconds": 298.8,
+  "turns": 30,
+  "diff": "",
+  "error": null
+}
