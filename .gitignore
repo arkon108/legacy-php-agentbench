@@ -221,3 +221,5 @@ __marimo__/
 
 # local vendor files
 vendor/
+
+.pi/

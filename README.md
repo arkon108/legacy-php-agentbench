@@ -191,7 +191,7 @@ cd legacy-php-agentbench
 pip install -r requirements.txt
 
 # Configure API access
-cp .env.example .env
+cp .env.sample .env
 # Edit .env with your SHISA_API_BASE_URL and SHISA_API_KEY
 
 # Build the Docker image
