@@ -7,7 +7,7 @@ from pathlib import Path
 RESULTS_DIR = Path(__file__).parent / "results"
 TASKS_DIR = Path(__file__).parent / "tasks"
 
-CONFIGS = ["A", "B", "C"]
+CONFIGS = ["A", "B", "C", "D"]
 TASK_IDS = [f"dw-{i:03d}" for i in range(1, 13)]
 
 
